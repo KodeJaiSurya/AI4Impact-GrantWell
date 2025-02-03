@@ -32,8 +32,8 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
     # Step 6: Bootstrap the AWS environment (from the root folder)
-    - name: Bootstrap AWS environment
-      run: cdk bootstrap
+    #- name: Bootstrap AWS environment
+     # run: cdk bootstrap
     # Step 7: Deploy the CDK stack (from the root folder)
     - name: Deploy CDK stack
       run: cdk deploy ffio-gw-stack --require-approval never  # Replace "My stack name" with your actual stack name
