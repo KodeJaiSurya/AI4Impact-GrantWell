@@ -26,49 +26,45 @@ export class AuthorizationStack extends Construct {
       selfSignUpEnabled: false,
       mfa: cognito.Mfa.OPTIONAL,
       featurePlan: FeaturePlan.PLUS,
-      // advancedSecurityMode: cognito.AdvancedSecurityMode.ENFORCED, (deprecated)
       autoVerify: { email: true, phone: true },
       signInAliases: {
         email: true,
       },
-      customAttributes : {
-        'role' : new cognito.StringAttribute({ minLen: 0, maxLen: 30, mutable: true })
+      customAttributes: {
+        'role': new cognito.StringAttribute({ minLen: 0, maxLen: 30, mutable: true })
+      },
+      // Add custom invitation messages
+      userInvitation: {
+        emailSubject: 'Welcome to GrantWell!',
+        emailBody:
+          'Hello,<br><br>' +
+          'I am pleased to inform you that the new custom deployment link for the GrantWell tool is now ready for testing. All future updates and changes will be applied to this new link.<br><br>' +
+          'Please note that the tool is still under development, so you may encounter errors. We kindly request that you record any feedback regarding the tool’s performance.<br><br>' +
+          'Below, you will find the necessary information for signing into the tool:<br><br>' +
+          '<strong>First-Time Sign-In:</strong><br>' +
+          'Please use the following link when signing in for the first time:<br>' +
+          '<a href="https://gw-auth.auth.us-east-1.amazoncognito.com/login?client_id=375cvc5uaol6jm9jm1jte11kpr&response_type=code&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=https://d17w6od3455cz1.cloudfront.net">First Time Sign-In Link</a><br><br>' +
+          '<strong>Regular Access:</strong><br>' +
+          'Once registered, you can use the regular custom deployment link:<br>' +
+          '<a href="https://d17w6od3455cz1.cloudfront.net">Regular Custom Deployment Link</a><br><br>' +
+          '<strong>Login Credentials:</strong><br>' +
+          'Username: {username}<br>' +
+          'Temporary Password: {####}<br><br>' +
+          'Thank you,<br>' +
+          'The GrantWell Team',
+        smsMessage: 'Hello {username}, your temporary password for GrantWell is {####}'
       }
-      // ... other user pool configurations
     });
     this.userPool = userPool;
 
-    // Create a provider attribute for mapping Azure claims
-    // const providerAttribute = new ProviderAttribute({
-    //   name: 'custom_attr',
-    //   type: 'String',
-    // });
     userPool.addDomain('CognitoDomain', {
       cognitoDomain: {
         domainPrefix: cognitoDomainName,
       },
     });
-    
-    
-    // Add the Azure OIDC identity provider to the User Pool
-    // const azureProvider = new UserPoolIdentityProviderOidc(this, 'AzureProvider', {
-    //   clientId: azureClientId,
-    //   clientSecret: azureClientSecret,
-    //   issuerUrl: azureIssuerUrl,
-    //   userPool: userPool,
-    //   attributeMapping: {
-    //     // email: ProviderAttribute.fromString('email'),
-    //     // fullname: ProviderAttribute.fromString('name'),
-    //     // custom: {
-    //     //   customKey: providerAttribute,
-    //     // },
-    //   },
-    //   // ... other optional properties
-    // });
 
     const userPoolClient = new UserPoolClient(this, 'UserPoolClient', {
       userPool,      
-      // supportedIdentityProviders: [UserPoolClientIdentityProvider.custom(azureProvider.providerName)],
     });
 
     this.userPoolClient = userPoolClient;
@@ -93,12 +89,5 @@ export class AuthorizationStack extends Construct {
     new cdk.CfnOutput(this, "UserPool Client ID", {
       value: userPoolClient.userPoolClientId || "",
     });
-
-    // new cdk.CfnOutput(this, "UserPool Client Name", {
-    //   value: userPoolClient.userPoolClientName || "",
-    // });
-
-
-    
   }
 }
